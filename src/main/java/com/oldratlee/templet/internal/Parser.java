@@ -163,8 +163,9 @@ public class Parser {
 
         StringBuilder varName = new StringBuilder();
         StringBuilder varName2 = new StringBuilder();
+        StringBuilder forVarName = new StringBuilder();
         int read;
-        while (true) {
+        while (true) { // space
             read = pushbackReader.read();
             if (read == -1) {
                 throw new IllegalStateException("no var for $for");
@@ -173,8 +174,8 @@ public class Parser {
                 break;
             }
         }
-        while (true) {
-            if(Character.isLetter((char)read)) {
+        while (true) { // var name1
+            if (Character.isLetter((char) read)) {
                 varName.append((char) read);
             }
             read = pushbackReader.read();
@@ -182,9 +183,95 @@ public class Parser {
                 break;
             }
         }
+        while (true) { // space
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no var for $for");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        if (read == ':') {
+            readForVarName(pushbackReader, forVarName);
+        } else {
+            while (true) { // var name2
+                if (Character.isLetter((char) read)) {
+                    varName.append((char) read);
+                }
+                read = pushbackReader.read();
+                if (!Character.isLetter(read)) {
+                    break;
+                }
+            }
+            while (true) { // space
+                read = pushbackReader.read();
+                if (read == -1) {
+                    throw new IllegalStateException("no var for $for");
+                }
+                if (!Character.isSpaceChar(read)) {
+                    break;
+                }
+            }
+            if (read == ':') {
+                while (true) { // space
+                    read = pushbackReader.read();
+                    if (read == -1) {
+                        throw new IllegalStateException("no var for $for");
+                    }
+                    if (!Character.isSpaceChar(read)) {
+                        break;
+                    }
+                }
+                readForVarName(pushbackReader, forVarName);
+            }
+            else {
+                throw new IllegalStateException("no : for $for");
+            }
+        }
 
+        Node subNode = doParse(pushbackReader);
 
-        return null;
+        char[] end = new char[DIR_END.length];
+        read = pushbackReader.read(end);
+        if (read < DIR_END.length) {
+            throw new IllegalStateException("no $end$ dir for for");
+        }
+        if (!Arrays.equals(end, DIR_END)) {
+            throw new IllegalStateException("no $end$ dir for for");
+        }
+
+        if(varName2.length() == 0) {
+            return new ForNode(varName.toString(), forVarName.toString(),subNode);
+        }
+        else {
+            return new ForNode(varName.toString(), varName2.toString(), forVarName.toString(), subNode);
+        }
+    }
+
+    private static void readForVarName(PushbackReader pushbackReader, StringBuilder forVarName) throws IOException {
+        int read = pushbackReader.read();
+        while (true) { // var name1
+            if (Character.isLetter((char) read)) {
+                forVarName.append((char) read);
+            }
+            read = pushbackReader.read();
+            if (!Character.isLetter(read)) {
+                break;
+            }
+        }
+        while (true) { // space
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no var for $for");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        if (read != META) {
+            throw new IllegalStateException("no end $ for $for");
+        }
     }
 
     static Node parseVar(PushbackReader pushbackReader) throws IOException {

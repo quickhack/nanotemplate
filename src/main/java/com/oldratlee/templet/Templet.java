@@ -13,7 +13,7 @@ import java.util.Map;
  * <ol>
  * <li><code>${var}</code>
  * <li><code>$if var$</code>
- * <li><code>$for var : list$</code>
+ * <li><code>$for var : list$</code>, <code>$for key value : list$</code>
  * <li><code>$end$</code>
  * <li><code>$$</code> 输出一个常理<code>$</code>
  * <li><code>$->#</code> 切换元字符
