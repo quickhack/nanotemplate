@@ -16,7 +16,6 @@ import java.util.Map;
  * <li><code>$for var : list$</code>, <code>$for key value : list$</code>
  * <li><code>$end$</code>
  * <li><code>$$</code> 输出一个常理<code>$</code>
- * <li><code>$->#</code> 切换元字符
  * </ol>
  *
  * @author Jerry Lee (oldratlee AT gmail DOT com)
