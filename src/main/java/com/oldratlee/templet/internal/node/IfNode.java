@@ -2,23 +2,22 @@ package com.oldratlee.templet.internal.node;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Jerry Lee (oldratlee AT gmail DOT com)
  */
-public class IfNode extends CompositeNode {
+public class IfNode extends ContainerNode {
     String varName;
 
-    public IfNode(String varName, List<Node> nodes) {
-        super(nodes);
+    public IfNode(String varName, Node subNode) {
+        super(subNode);
         this.varName = varName;
     }
 
     public void execute(Map<String, Object> context, Writer result) throws IOException {
         if (isTrue(context.get(varName))) {
-            super.execute(context, result);
+            subNode.execute(context, result);
         }
     }
 

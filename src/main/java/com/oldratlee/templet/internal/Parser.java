@@ -1,14 +1,13 @@
 package com.oldratlee.templet.internal;
 
-import com.oldratlee.templet.internal.node.CompositeNode;
-import com.oldratlee.templet.internal.node.LiteralNode;
-import com.oldratlee.templet.internal.node.Node;
+import com.oldratlee.templet.internal.node.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,6 +23,10 @@ public class Parser {
             reader = new BufferedReader(reader);
         }
         PushbackReader pushbackReader = new PushbackReader(reader);
+        return doParse(pushbackReader);
+    }
+
+    static Node doParse(PushbackReader pushbackReader) throws IOException {
         List<Node> nodeList = new ArrayList<Node>();
         while (true) {
             int read1 = pushbackReader.read();
@@ -75,7 +78,7 @@ public class Parser {
 
         if (nodeList.isEmpty()) return Node.EMPTY;
         if (nodeList.size() == 1) return nodeList.get(0);
-        return new CompositeNode(nodeList);
+        return new BlockNode(nodeList);
     }
 
     static Node parseLiteral(PushbackReader pushbackReader) throws IOException {
@@ -101,17 +104,132 @@ public class Parser {
         return new LiteralNode(sb.toString());
     }
 
+    private static final char[] DIR_END = new char[]{'$', 'e', 'n', 'd', '$'};
+
     static Node parseIf(PushbackReader pushbackReader) throws IOException {
+        pushbackReader.read(); // $
+        pushbackReader.read(); // i
+        pushbackReader.read(); // f
 
+        StringBuilder varName = new StringBuilder();
+        int read;
+        while (true) {
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no var for if");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        while (true) {
+            varName.append((char) read);
+            read = pushbackReader.read();
+            if (Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        while (true) {
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no end $ for if");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
 
-        return null;
+        if (read != META) {
+            throw new IllegalStateException("no end $ for if");
+        }
+        Node node = doParse(pushbackReader);
+
+        char[] end = new char[DIR_END.length];
+        read = pushbackReader.read(end);
+        if (read < DIR_END.length) {
+            throw new IllegalStateException("no $end$ dir for if");
+        }
+        if (!Arrays.equals(end, DIR_END)) {
+            throw new IllegalStateException("no $end$ dir for if");
+        }
+        return new IfNode(varName.toString(), node);
     }
 
     static Node parseFor(PushbackReader pushbackReader) throws IOException {
+        pushbackReader.read(); // $
+        pushbackReader.read(); // f
+        pushbackReader.read(); // o
+        pushbackReader.read(); // r
+
+        StringBuilder varName = new StringBuilder();
+        StringBuilder varName2 = new StringBuilder();
+        int read;
+        while (true) {
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no var for $for");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        while (true) {
+            if(Character.isLetter((char)read)) {
+                varName.append((char) read);
+            }
+            read = pushbackReader.read();
+            if (!Character.isLetter(read)) {
+                break;
+            }
+        }
+
+
         return null;
     }
 
     static Node parseVar(PushbackReader pushbackReader) throws IOException {
-        return null;
+        pushbackReader.read(); // $
+        pushbackReader.read(); // {
+
+        StringBuilder varName = new StringBuilder();
+        int read;
+        while (true) {
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no var for ${}");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        while (true) {
+            varName.append((char) read);
+            read = pushbackReader.read();
+            if (Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        while (true) {
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no } for ${}");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        while (true) {
+            read = pushbackReader.read();
+            if (read == -1) {
+                throw new IllegalStateException("no end } for ${}");
+            }
+            if (!Character.isSpaceChar(read)) {
+                break;
+            }
+        }
+        if (read != '}') {
+            throw new IllegalStateException("no end } for ${}");
+        }
+        return new VarNode(varName.toString());
     }
 }

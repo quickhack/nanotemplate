@@ -2,7 +2,6 @@ package com.oldratlee.templet.internal.node;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,7 +10,7 @@ import java.util.Map;
 public class VarNode implements Node {
     String varName;
 
-    public VarNode(String varName, List<Node> nodes) {
+    public VarNode(String varName) {
         this.varName = varName;
     }
 
