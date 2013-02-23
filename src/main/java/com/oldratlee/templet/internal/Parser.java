@@ -87,7 +87,7 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         while (true) {
             int read = pushbackReader.read();
-            if(read < 0) break;
+            if (read < 0) break;
 
             if (read != META) {
                 sb.append((char) read);
@@ -243,7 +243,7 @@ public class Parser {
                 break;
             }
             if (isVarNameChar(read)) {
-                varName.append((char)read);
+                varName.append((char) read);
             } else {
                 pushbackReader.unread(read);
                 break;

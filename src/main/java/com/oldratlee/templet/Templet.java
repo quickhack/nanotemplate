@@ -3,9 +3,7 @@ package com.oldratlee.templet;
 import com.oldratlee.templet.internal.Parser;
 import com.oldratlee.templet.internal.node.Node;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.Map;
 
 /**
@@ -25,9 +23,27 @@ public class Templet {
         return new Templet(Parser.parse(input));
     }
 
-    public static void render(Reader template, Map<String, Object> context, Writer result) throws IOException {
+    public static String render(String templet, Map<String, Object> context) throws IOException {
+        StringWriter output = new StringWriter();
+        render(new StringReader(templet), context, output);
+        return output.toString();
+    }
+
+    public static String renderFromClassResource(Class<?> clazz, String templetName, Map<String, Object> context) throws IOException {
+        StringWriter output = new StringWriter();
+        renderFromClassResource(clazz, templetName, context, output);
+        return output.toString();
+    }
+
+    public static void renderFromClassResource(Class<?> clazz, String templetName, Map<String, Object> context, Writer output) throws IOException {
+        InputStream resourceAsStream = clazz.getResourceAsStream(templetName);
+        InputStreamReader reader = new InputStreamReader(resourceAsStream);
+        render(reader, context, output);
+    }
+
+    public static void render(Reader template, Map<String, Object> context, Writer output) throws IOException {
         Node node = Parser.parse(template);
-        node.execute(context, result);
+        node.execute(context, output);
     }
 
     public void render(Map<String, Object> context, Writer result) throws IOException {
