@@ -107,6 +107,23 @@ public class Parser {
         return new LiteralNode(sb.toString());
     }
 
+    static Node parseVar(PushbackReader pushbackReader) throws IOException {
+        pushbackReader.read(); // $
+        pushbackReader.read(); // {
+
+        eatSpace(pushbackReader);
+        String varName = readVarName(pushbackReader);
+        if (varName.length() == 0) {
+            throw new IllegalStateException("no varname for ${}");
+        }
+        eatSpace(pushbackReader);
+        int read = pushbackReader.read();
+        if (read != '}') {
+            throw new IllegalStateException("no end } for ${}");
+        }
+        return new VarNode(varName);
+    }
+
     private static final char[] DIR_END = new char[]{'$', 'e', 'n', 'd', '$'};
 
     static Node parseIf(PushbackReader pushbackReader) throws IOException {
@@ -203,23 +220,6 @@ public class Parser {
             throw new IllegalStateException("no end $ for $for");
         }
         return varName;
-    }
-
-    static Node parseVar(PushbackReader pushbackReader) throws IOException {
-        pushbackReader.read(); // $
-        pushbackReader.read(); // {
-
-        eatSpace(pushbackReader);
-        String varName = readVarName(pushbackReader);
-        if (varName.length() == 0) {
-            throw new IllegalStateException("no varname for ${}");
-        }
-        eatSpace(pushbackReader);
-        int read = pushbackReader.read();
-        if (read != '}') {
-            throw new IllegalStateException("no end } for ${}");
-        }
-        return new VarNode(varName);
     }
 
     static void eatSpace(PushbackReader pushbackReader) throws IOException {
