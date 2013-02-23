@@ -20,11 +20,11 @@ public class Parser {
         if (!(reader instanceof BufferedReader)) {
             reader = new BufferedReader(reader);
         }
-        PushbackReader pushbackReader = new PushbackReader(reader);
-        return doParse(pushbackReader);
+        PushbackReader pushbackReader = new PushbackReader(reader, 1024);
+        return doParse(pushbackReader, false);
     }
 
-    static Node doParse(PushbackReader pushbackReader) throws IOException {
+    static Node doParse(PushbackReader pushbackReader, boolean nested) throws IOException {
         List<Node> nodeList = new ArrayList<Node>();
         while (true) {
             int read1 = pushbackReader.read();
@@ -67,6 +67,10 @@ public class Parser {
                     pushbackReader.unread(read2);
                     pushbackReader.unread(read1);
                     nodeList.add(parseVar(pushbackReader));
+                } else if (nested) {
+                    pushbackReader.unread(read2);
+                    pushbackReader.unread(read1);
+                    break;
                 } else {
                     throw new IllegalStateException("Illegal format: " +
                             (char) read1 + (char) read2);
@@ -83,7 +87,7 @@ public class Parser {
         StringBuilder sb = new StringBuilder();
         while (true) {
             int read = pushbackReader.read();
-            assert read > 0;
+            if(read < 0) break;
 
             if (read != META) {
                 sb.append((char) read);
@@ -93,6 +97,7 @@ public class Parser {
                     sb.append(META);
                 } else {
                     pushbackReader.unread(read2);
+                    pushbackReader.unread(read);
                     break;
                 }
             }
@@ -123,26 +128,21 @@ public class Parser {
         while (true) {
             varName.append((char) read);
             read = pushbackReader.read();
-            if (Character.isSpaceChar(read)) {
-                break;
-            }
-        }
-        while (true) {
-            read = pushbackReader.read();
-            if (read == -1) {
-                throw new IllegalStateException("no end $ for if");
-            }
-            if (!Character.isSpaceChar(read)) {
+            if (!isVarNameChar(read)) {
+                pushbackReader.unread(read);
                 break;
             }
         }
 
+        eatSpace(pushbackReader);
+
+        read = pushbackReader.read();
         if (read != META) {
-            throw new IllegalStateException("no end $ for if");
+            throw new IllegalStateException("no end $ for $if");
         }
-        Node node = doParse(pushbackReader);
+        Node node = doParse(pushbackReader, true);
 
-        eatEndDir(pushbackReader, "no $end$ dir for if");
+        eatEndDir(pushbackReader, "no $end$ dir for $if");
 
         return new IfNode(varName.toString(), node);
     }
@@ -183,7 +183,7 @@ public class Parser {
             forVarName = parseForDirTail(pushbackReader);
         }
 
-        Node subNode = doParse(pushbackReader);
+        Node subNode = doParse(pushbackReader, true);
 
         eatEndDir(pushbackReader, "no $end$ dir for for");
 
@@ -242,8 +242,8 @@ public class Parser {
             if (read == -1) {
                 break;
             }
-            if (Character.isLetter(read)) {
-                varName.append(read);
+            if (isVarNameChar(read)) {
+                varName.append((char)read);
             } else {
                 pushbackReader.unread(read);
                 break;
@@ -261,5 +261,12 @@ public class Parser {
         if (!Arrays.equals(end, DIR_END)) {
             throw new IllegalStateException(msg);
         }
+    }
+
+    static boolean isVarNameChar(int c) {
+        return c >= 'a' && c <= 'z' ||
+                c >= 'A' && c <= 'Z' ||
+                c >= '0' && c <= '9' ||
+                c == '_';
     }
 }
