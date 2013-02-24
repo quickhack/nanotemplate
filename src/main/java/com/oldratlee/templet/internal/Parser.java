@@ -21,10 +21,14 @@ public class Parser {
             reader = new BufferedReader(reader);
         }
         PushbackReader pushbackReader = new PushbackReader(reader, 1024);
-        return doParse(pushbackReader, false);
+        List<Node> nodeList = doParse(pushbackReader, false);
+
+        if (nodeList.isEmpty()) return Node.EMPTY;
+        if (nodeList.size() == 1) return nodeList.get(0);
+        return new BlockNode(nodeList);
     }
 
-    static Node doParse(PushbackReader pushbackReader, boolean nested) throws IOException {
+    static List<Node> doParse(PushbackReader pushbackReader, boolean nested) throws IOException {
         List<Node> nodeList = new ArrayList<Node>();
         while (true) {
             int read1 = pushbackReader.read();
@@ -77,10 +81,7 @@ public class Parser {
                 }
             }
         }
-
-        if (nodeList.isEmpty()) return Node.EMPTY;
-        if (nodeList.size() == 1) return nodeList.get(0);
-        return new BlockNode(nodeList);
+        return nodeList;
     }
 
     static Node parseLiteral(PushbackReader pushbackReader) throws IOException {
@@ -157,11 +158,11 @@ public class Parser {
         if (read != META) {
             throw new IllegalStateException("no end $ for $if");
         }
-        Node node = doParse(pushbackReader, true);
+        List<Node> nodeList = doParse(pushbackReader, true);
 
         eatEndDir(pushbackReader, "no $end$ dir for $if");
 
-        return new IfNode(varName.toString(), node);
+        return new IfNode(varName.toString(), nodeList);
     }
 
     static Node parseFor(PushbackReader pushbackReader) throws IOException {
@@ -200,14 +201,14 @@ public class Parser {
             forVarName = parseForDirTail(pushbackReader);
         }
 
-        Node subNode = doParse(pushbackReader, true);
+        List<Node> nodeList = doParse(pushbackReader, true);
 
         eatEndDir(pushbackReader, "no $end$ dir for for");
 
         if (varName2 == null) {
-            return new ForNode(varName, forVarName, subNode);
+            return new ForNode(varName, forVarName, nodeList);
         } else {
-            return new ForNode(varName, varName2, forVarName, subNode);
+            return new ForNode(varName, varName2, forVarName, nodeList);
         }
     }
 

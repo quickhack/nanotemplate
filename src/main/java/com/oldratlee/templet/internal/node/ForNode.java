@@ -6,26 +6,27 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Jerry Lee (oldratlee AT gmail DOT com)
  */
-public class ForNode extends ContainerNode {
+public class ForNode extends BlockNode {
     String varName;
     String varName2;
     String forVarName;
 
-    public ForNode(String varName, String forVarName, Node subNode) {
-        super(subNode);
+    public ForNode(String varName, String forVarName, List<Node> nodes) {
+        super(nodes);
         this.varName = varName;
         this.forVarName = forVarName;
     }
 
 
-    public ForNode(String varName, String varName2, String forVarName, Node subNode) {
-        super(subNode);
+    public ForNode(String varName, String varName2, String forVarName, List<Node> nodes) {
+        super(nodes);
         this.varName = varName;
         this.varName2 = varName2;
         this.forVarName = forVarName;
@@ -44,7 +45,7 @@ public class ForNode extends ContainerNode {
                 Stash stash = new Stash(context, varName);
                 for (Object ele : (Collection) forVar) {
                     context.put(varName, ele);
-                    subNode.execute(context, result);
+                    super.execute(context, result);
                 }
                 stash.pop();
             } else {
@@ -52,7 +53,7 @@ public class ForNode extends ContainerNode {
                 Stash stash = new Stash(context, varName);
                 for (int i = 0; i < len; ++i) {
                     context.put(varName, Array.get(forVar, i));
-                    subNode.execute(context, result);
+                    super.execute(context, result);
                 }
                 stash.pop();
             }
@@ -66,7 +67,7 @@ public class ForNode extends ContainerNode {
             for (Map.Entry entry : set) {
                 context.put(varName, entry.getKey());
                 context.put(varName2, entry.getValue());
-                subNode.execute(context, result);
+                super.execute(context, result);
             }
             stash.pop();
         }
