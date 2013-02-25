@@ -1,6 +1,8 @@
-$if con_true$$for v1 : coll$${v1}
-$end$$end$
+	  $if con_true$$for v1 : coll$${v1}
+$end$  		 
+	      		$end$
 $for    k v : map$
-$if con_true$${k}$end$ :$$: $if con_false      $${v}$end$x$end$
+$if con_true$${k}$end$ :$$: $if con_false $${v}$end$x$end$
+
 $if con_false$$for v1 : coll$${v1}
 $end$$end$

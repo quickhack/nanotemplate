@@ -1,4 +1,5 @@
 $for v1 : coll$${v1}
 $end$
 $for    k v : map$
-${k} :$$: ${v}$end$
+${k} :$$: ${v}
+$end$

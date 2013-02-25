@@ -28,7 +28,29 @@ public class Parser {
         return new BlockNode(nodeList);
     }
 
+    private static void cutTailSpace(List<Node> nodeList) {
+        if (nodeList.isEmpty()) return;
+        Node node = nodeList.get(nodeList.size() - 1);
+
+        if (!(node instanceof LiteralNode)) return;
+        LiteralNode literalNode = (LiteralNode) node;
+
+        String literal = literalNode.getLiteral();
+
+        for (int i = literal.length() - 1; i >= 0; --i) {
+            char c = literal.charAt(i);
+            if (!Character.isWhitespace(c) || c == '\r' || c == '\n') {
+                if (i < literal.length() - 1) {
+                    literalNode.setLiteral(literal.substring(0, i + 1));
+                    break;
+                }
+            }
+        }
+    }
+
     static List<Node> doParse(PushbackReader pushbackReader, boolean nested) throws IOException {
+        boolean cutSpaceHead = nested;
+
         List<Node> nodeList = new ArrayList<Node>();
         while (true) {
             int read1 = pushbackReader.read();
@@ -36,19 +58,21 @@ public class Parser {
 
             if (read1 != META) {
                 pushbackReader.unread(read1);
-                nodeList.add(parseLiteral(pushbackReader));
+                nodeList.add(parseLiteral(pushbackReader, cutSpaceHead));
             } else {
                 int read2 = pushbackReader.read();
                 if (read2 == META) {
                     pushbackReader.unread(read2);
                     pushbackReader.unread(read1);
-                    nodeList.add(parseLiteral(pushbackReader));
+                    nodeList.add(parseLiteral(pushbackReader, cutSpaceHead));
                 } else if (read2 == 'i') {
                     int read3 = pushbackReader.read();
                     if (read3 == 'f') {
                         pushbackReader.unread(read3);
                         pushbackReader.unread(read2);
                         pushbackReader.unread(read1);
+
+                        cutTailSpace(nodeList);
                         nodeList.add(parseIf(pushbackReader));
                     } else {
                         throw new IllegalStateException("Unknown direct: " +
@@ -65,6 +89,8 @@ public class Parser {
                         pushbackReader.unread(read3);
                         pushbackReader.unread(read2);
                         pushbackReader.unread(read1);
+
+                        cutTailSpace(nodeList);
                         nodeList.add(parseFor(pushbackReader));
                     }
                 } else if (read2 == '{') {
@@ -79,12 +105,14 @@ public class Parser {
                     throw new IllegalStateException("Illegal format: " +
                             (char) read1 + (char) read2);
                 }
+
+                cutSpaceHead = false;
             }
         }
         return nodeList;
     }
 
-    static Node parseLiteral(PushbackReader pushbackReader) throws IOException {
+    static Node parseLiteral(PushbackReader pushbackReader, boolean cutSpaceHead) throws IOException {
         StringBuilder sb = new StringBuilder();
         while (true) {
             int read = pushbackReader.read();
@@ -104,7 +132,30 @@ public class Parser {
             }
         }
 
-        assert sb.length() > 0;
+        if (cutSpaceHead) {
+            int state = 0;
+            for (int i = 0; i < sb.length(); ++i) {
+                char c = sb.charAt(i);
+                if (state == 0) {
+                    if (!Character.isWhitespace(c)) {
+                        break;
+                    }
+                    if (c == '\r') {
+                        state = 1;
+                    } else if (c == '\n') {
+                        sb.delete(0, i + 1);
+                        break;
+                    }
+                } else if (state == 1) {
+                    if (!Character.isWhitespace(c)) {
+                        sb.delete(0, i);
+                    } else if (c == '\n') {
+                        sb.delete(0, i + 1);
+                        break;
+                    }
+                }
+            }
+        }
         return new LiteralNode(sb.toString());
     }
 
@@ -139,7 +190,7 @@ public class Parser {
             if (read == -1) {
                 throw new IllegalStateException("no var for if");
             }
-            if (!Character.isSpaceChar(read)) {
+            if (!Character.isWhitespace(read)) {
                 break;
             }
         }
@@ -229,7 +280,7 @@ public class Parser {
             if (read == -1) {
                 return;
             }
-            if (!Character.isSpaceChar(read)) {
+            if (!Character.isWhitespace(read)) {
                 pushbackReader.unread(read);
                 return;
             }
@@ -261,6 +312,34 @@ public class Parser {
         }
         if (!Arrays.equals(end, DIR_END)) {
             throw new IllegalStateException(msg);
+        }
+
+        int state = 0;
+        List<Integer> history = new ArrayList<Integer>();
+        while (true) {
+            int read = pushbackReader.read();
+            history.add(read);
+
+            if (state == 0) {
+                if (read != -1 && !Character.isWhitespace(read)) {
+                    if (!history.isEmpty()) {
+                        for (int i = history.size() - 1; i >= 0; --i) {
+                            pushbackReader.unread(history.get(i));
+                        }
+                        break;
+                    }
+                }
+                if (read == '\r') state = 1;
+                else if (read == '\n' || read == -1) break;
+            } else if (state == 1) {
+                if (read != -1 && !Character.isWhitespace(read)) {
+                    pushbackReader.unread(read);
+                    break;
+                }
+                if (read == '\n') {
+                    state = 1;
+                } else if (read == '\n' || read == -1) break;
+            }
         }
     }
 

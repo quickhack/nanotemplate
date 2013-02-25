@@ -14,6 +14,14 @@ public class LiteralNode implements Node {
         this.literal = literal;
     }
 
+    public String getLiteral() {
+        return literal;
+    }
+
+    public void setLiteral(String literal) {
+        this.literal = literal;
+    }
+
     public void execute(Map<String, Object> context, Writer result) throws IOException {
         result.write(literal);
     }
