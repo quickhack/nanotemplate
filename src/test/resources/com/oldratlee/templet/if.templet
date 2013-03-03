@@ -1,10 +1,10 @@
 	$if con_true$
   true output
-$end$
-     	$if con_true$true output  
+		$end$    
+			$if con_true$true output  
      $end$
-     	$if con_true$  true output  
-     $end$
-	   		     $if con_false$
+	$if con_true$  true output  
+		$end$
+			$if con_false$		
 invisible
-$end$
+		$end$		

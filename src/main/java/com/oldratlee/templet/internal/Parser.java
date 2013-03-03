@@ -39,7 +39,9 @@ public class Parser {
 
         for (int i = literal.length() - 1; i >= 0; --i) {
             char c = literal.charAt(i);
-            if (!Character.isWhitespace(c) || c == '\r' || c == '\n') {
+            if (!Character.isWhitespace(c))
+                break;
+            if (c == '\r' || c == '\n') {
                 if (i != literal.length() - 1)
                     literalNode.setLiteral(literal.substring(0, i + 1));
                 break;
@@ -212,6 +214,7 @@ public class Parser {
         }
         List<Node> nodeList = doParse(pushbackReader, true);
 
+        cutLastSpaceLine(nodeList);
         eatEndDir(pushbackReader, "no $end$ dir for $if");
 
         return new IfNode(varName.toString(), nodeList);
@@ -255,6 +258,7 @@ public class Parser {
 
         List<Node> nodeList = doParse(pushbackReader, true);
 
+        cutLastSpaceLine(nodeList);
         eatEndDir(pushbackReader, "no $end$ dir for for");
 
         if (varName2 == null) {

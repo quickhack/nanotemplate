@@ -1,9 +1,11 @@
 	  $if con_true$$for v1 : coll$${v1}
 $end$
 	      		$end$
-$for    k v : map$
-$if con_true$${k}$end$ :$$: $if con_false $${v}
-$end$x$end$
+  $for    k v : map$
+$if con_true$${k}$end$ :$$: ${v}
+$if con_false $${v}
+$end$		$end$   	
 
 $if con_false$$for v1 : coll$${v1}
-$end$$end$
+$end$	
+$end$	
