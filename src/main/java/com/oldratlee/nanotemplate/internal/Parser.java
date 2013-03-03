@@ -1,6 +1,6 @@
-package com.oldratlee.templet.internal;
+package com.oldratlee.nanotemplate.internal;
 
-import com.oldratlee.templet.internal.node.*;
+import com.oldratlee.nanotemplate.internal.node.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;

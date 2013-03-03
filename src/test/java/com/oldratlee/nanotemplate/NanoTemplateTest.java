@@ -1,4 +1,4 @@
-package com.oldratlee.templet;
+package com.oldratlee.nanotemplate;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Jerry Lee (oldratlee AT gmail DOT com)
  */
 @RunWith(Parameterized.class)
-public class TempletTest {
+public class NanoTemplateTest {
 
     static Map<String, Object> context = new HashMap<String, Object>();
 
@@ -39,18 +39,18 @@ public class TempletTest {
     public static Collection<Object[]> prepareData() throws Exception {
         final List<Object[]> retTestData = new ArrayList<Object[]>();
 
-        File directory = new File(TempletTest.class.getResource("./").getFile());
+        File directory = new File(NanoTemplateTest.class.getResource("./").getFile());
         File[] files = directory.listFiles();
         assertNotNull(files);
         for (File f : files) {
-            if(f.getName().endsWith("templet")){
+            if(f.getName().endsWith("nanotemplate")){
                 retTestData.add(new Object[]{f.getName()});
             }
         }
         return retTestData;
     }
 
-    public TempletTest(String fileName) {
+    public NanoTemplateTest(String fileName) {
         this.fileName = fileName;
     }
 
@@ -58,15 +58,15 @@ public class TempletTest {
 
     @Test
     public void test_render() throws IOException {
-        System.out.println("Running templet " + fileName);
+        System.out.println("Running nanotemplate " + fileName);
 
-        InputStream inputStream = TempletTest.class.getResourceAsStream(fileName);
+        InputStream inputStream = NanoTemplateTest.class.getResourceAsStream(fileName);
         InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
 
         StringWriter writer = new StringWriter();
-        Templet.render(reader, context, writer);
+        NanoTemplate.render(reader, context, writer);
 
-        String expected = IOUtils.toString(TempletTest.class.getResourceAsStream(fileName + ".txt"), "UTF-8");
+        String expected = IOUtils.toString(NanoTemplateTest.class.getResourceAsStream(fileName + ".txt"), "UTF-8");
         assertEquals(expected, writer.toString());
     }
 }

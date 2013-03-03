@@ -1,7 +1,7 @@
-package com.oldratlee.templet;
+package com.oldratlee.nanotemplate;
 
-import com.oldratlee.templet.internal.Parser;
-import com.oldratlee.templet.internal.node.Node;
+import com.oldratlee.nanotemplate.internal.Parser;
+import com.oldratlee.nanotemplate.internal.node.Node;
 
 import java.io.*;
 import java.util.Map;
@@ -18,9 +18,9 @@ import java.util.Map;
  *
  * @author Jerry Lee (oldratlee AT gmail DOT com)
  */
-public class Templet {
-    public static Templet getTemplet(Reader input) throws IOException {
-        return new Templet(Parser.parse(input));
+public class NanoTemplate {
+    public static NanoTemplate getTemplet(Reader input) throws IOException {
+        return new NanoTemplate(Parser.parse(input));
     }
 
     public static String render(String templet, Map<String, Object> context) throws IOException {
@@ -52,7 +52,7 @@ public class Templet {
 
     private Node node;
 
-    private Templet(Node node) {
+    private NanoTemplate(Node node) {
         this.node = node;
     }
 }

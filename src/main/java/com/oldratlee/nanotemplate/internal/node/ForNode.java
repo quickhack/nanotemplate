@@ -1,6 +1,6 @@
-package com.oldratlee.templet.internal.node;
+package com.oldratlee.nanotemplate.internal.node;
 
-import com.oldratlee.templet.internal.util.Stash;
+import com.oldratlee.nanotemplate.internal.util.Stash;
 
 import java.io.IOException;
 import java.io.Writer;

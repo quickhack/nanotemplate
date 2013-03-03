@@ -1,4 +1,4 @@
-package com.oldratlee.templet.internal.util;
+package com.oldratlee.nanotemplate.internal.util;
 
 import java.util.ArrayList;
 import java.util.List;

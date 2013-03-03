@@ -1,4 +1,4 @@
-package com.oldratlee.templet.internal.node;
+package com.oldratlee.nanotemplate.internal.node;
 
 import java.io.IOException;
 import java.io.Writer;
