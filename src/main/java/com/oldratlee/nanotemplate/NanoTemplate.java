@@ -35,24 +35,24 @@ import java.util.Map;
  * @author Jerry Lee (oldratlee AT gmail DOT com)
  */
 public class NanoTemplate {
-    public static NanoTemplate getTemplet(Reader input) throws IOException {
+    public static NanoTemplate getTemplate(Reader input) throws IOException {
         return new NanoTemplate(Parser.parse(input));
     }
 
-    public static String render(String templet, Map<String, Object> context) throws IOException {
+    public static String render(String template, Map<String, Object> context) throws IOException {
         StringWriter output = new StringWriter();
-        render(new StringReader(templet), context, output);
+        render(new StringReader(template), context, output);
         return output.toString();
     }
 
-    public static String renderFromClassResource(Class<?> clazz, String templetName, Map<String, Object> context) throws IOException {
+    public static String renderFromClassResource(Class<?> clazz, String templateName, Map<String, Object> context) throws IOException {
         StringWriter output = new StringWriter();
-        renderFromClassResource(clazz, templetName, context, output);
+        renderFromClassResource(clazz, templateName, context, output);
         return output.toString();
     }
 
-    public static void renderFromClassResource(Class<?> clazz, String templetName, Map<String, Object> context, Writer output) throws IOException {
-        InputStream resourceAsStream = clazz.getResourceAsStream(templetName);
+    public static void renderFromClassResource(Class<?> clazz, String templateName, Map<String, Object> context, Writer output) throws IOException {
+        InputStream resourceAsStream = clazz.getResourceAsStream(templateName);
         InputStreamReader reader = new InputStreamReader(resourceAsStream);
         render(reader, context, output);
     }
