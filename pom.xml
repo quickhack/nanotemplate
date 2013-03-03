@@ -4,10 +4,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.oldratlee</groupId>
-	<artifactId>templet</artifactId>
+	<artifactId>nanotemplate</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>templet</name>
+	<name>nanotemplate</name>
 	<description>nano template implementation of java</description>
 	<inceptionYear>2013</inceptionYear>
 	<licenses>
@@ -48,6 +48,16 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<scm>
+		<url>https://github.com/oldratlee/nanotemplate</url>
+		<connection>scm:git:git@github.com:oldratlee/nanotemplate.git</connection>
+		<developerConnection>scm:git:git@github.com:oldratlee/nanotemplate.git
+		</developerConnection>
+	</scm>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/oldratlee/nanotemplate/issues</url>
+	</issueManagement>
 	<developers>
 		<developer>
 			<name>Jerry Lee</name>
