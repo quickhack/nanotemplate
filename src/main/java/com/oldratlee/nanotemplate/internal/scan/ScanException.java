@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-package com.oldratlee.nanotemplate.internal.node;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
+package com.oldratlee.nanotemplate.internal.scan;
 
 /**
  * @author Jerry Lee (oldratlee AT gmail DOT com)
  */
-public class BlockNode implements Node {
-    List<Node> nodes;
+public class ScanException extends Exception {
+    private final int line;
+    private final int column;
 
-    public BlockNode(List<Node> nodes) {
-        this.nodes = nodes;
+    public ScanException(String s, int line, int column) {
+        super(s);
+        this.line = line;
+        this.column = column;
     }
 
-    public void execute(Map<String, Object> context, Writer result) throws IOException {
-        for (Node node : nodes) {
-            node.execute(context, result);
-        }
+    public int getLine() {
+        return line;
     }
 
-    public List<Node> getNodes() {
-        return nodes;
+    public int getColumn() {
+        return column;
     }
 }
